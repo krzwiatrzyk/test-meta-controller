@@ -1,0 +1,6 @@
+apiVersion: windkube.com/v1
+kind: Label
+metadata:
+  name: hello
+spec:
+  label: hello

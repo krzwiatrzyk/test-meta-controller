@@ -1,0 +1,19 @@
+version: 3
+
+tasks:
+  create:cluster: k3d cluster create meta
+  delete:cluster: k3d cluster delete meta
+
+  deploy:metacontroller: kubectl apply -k https://github.com/metacontroller/metacontroller/manifests/production
+
+  labeler:config-map: kubectl -n hello create configmap hello-controller --from-file=sync.py
+
+  run:controller:
+    dir: controller
+    cmds:
+    - go run main.go
+
+  apply:crd: kubectl apply -f manifests/crds
+  apply:custom: kubectl apply -f manifests/custom
+
+  test:deployment: kubectl create deployment --image=busybox:latest test-$RANDOM -- sleep 1d

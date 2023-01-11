@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-controller
+spec:
+  selector:
+    app: hello-controller
+  ports:
+  - port: 80
