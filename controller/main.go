@@ -33,5 +33,14 @@ func labelerHandler(c *gin.Context) {
 		return
 	}
 	fmt.Printf("%+v",string(body))
+	// var objmap map[string]*json.RawMessage
+	// if err := json.Unmarshal(body, &objmap); err != nil {
+	// 	panic(err)
+	// }
+	// fmt.Printf("Attachments: %+v", objmap["attachments"])
+	// fmt.Printf("Controller: %+v", objmap["controller"])
+	// fmt.Printf("Finalizing: %+v", objmap["finalizing"])
+	// fmt.Printf("Object: %+v", objmap["object"])
+	// fmt.Printf("Related: %+v", objmap["related"])
 	c.String(http.StatusOK,"Success")
 }
