@@ -1,28 +1,32 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/tidwall/gjson"
 )
+
+var labels = map[string]string{}
 
 func main() {
 	r := gin.Default()
 	r.POST("/labeler", labelerHandler)
 	port := os.Getenv("PORT")
 	if len(port) == 0 {
-		port = "9090"
+		port = "9091"
 	}
 	r.Run(fmt.Sprintf(":%s", port))
 
-// 	// Shutdown on SIGTERM.
-// 	sigchan := make(chan os.Signal, 2)
-// 	signal.Notify(sigchan, os.Interrupt, syscall.SIGTERM)
-// 	sig := <-sigchan
-// 	log.Printf("Received %v signal. Shutting down...", sig)
+	// 	// Shutdown on SIGTERM.
+	// 	sigchan := make(chan os.Signal, 2)
+	// 	signal.Notify(sigchan, os.Interrupt, syscall.SIGTERM)
+	// 	sig := <-sigchan
+	// 	log.Printf("Received %v signal. Shutting down...", sig)
 }
 
 func labelerHandler(c *gin.Context) {
@@ -32,15 +36,41 @@ func labelerHandler(c *gin.Context) {
 		c.String(http.StatusBadRequest, "JSON could not be retrieved")
 		return
 	}
-	fmt.Printf("%+v",string(body))
-	// var objmap map[string]*json.RawMessage
-	// if err := json.Unmarshal(body, &objmap); err != nil {
-	// 	panic(err)
-	// }
-	// fmt.Printf("Attachments: %+v", objmap["attachments"])
-	// fmt.Printf("Controller: %+v", objmap["controller"])
-	// fmt.Printf("Finalizing: %+v", objmap["finalizing"])
-	// fmt.Printf("Object: %+v", objmap["object"])
-	// fmt.Printf("Related: %+v", objmap["related"])
-	c.String(http.StatusOK,"Success")
+	bodyString := string(body)
+	// os.WriteFile("messages/" + time.Now().String() + ".json", body, 0644)
+	kind := gjson.Get(bodyString, "object.kind").String()
+	
+	switch kind {
+	case "Label":
+		label(c, bodyString)
+	case "Deployment":
+		deployment(c, bodyString)
+	}
+}
+
+// func test() {
+// 	message, _ := os.ReadFile("../message.json")
+// 	bodyString := string(message)
+// 	fmt.Println(bodyString)
+// 	value := gjson.Get(bodyString, "finalizing")
+// 	fmt.Printf("%T - %v", value, value)
+// }
+
+func label(c *gin.Context, body string) {
+	fmt.Println("label handler")
+	label := gjson.Get(body, "object.spec.label").String()
+	labels[label] = label
+	fmt.Println("Registered label - " + label)
+	c.String(http.StatusOK, "Success")
+}
+
+func deployment(c *gin.Context, body string) {
+	fmt.Println("deployment handler")
+	fmt.Println(labels)
+	fmt.Println(json.Marshal(response{labels}))
+	c.JSON(http.StatusOK, response{labels})
+}
+
+type response struct {
+	Labels map[string]string `json:"labels"`
 }

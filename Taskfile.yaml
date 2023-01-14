@@ -16,4 +16,4 @@ tasks:
   apply:crd: kubectl apply -f manifests/crds
   apply:custom: kubectl apply -f manifests/custom
 
-  test:deployment: kubectl create deployment --image=busybox:latest test-$RANDOM -- sleep 1d
+  test:deployment: kubectl create deployment --image=busybox:latest test-{{ randInt 1 10 }} -- sleep 1d

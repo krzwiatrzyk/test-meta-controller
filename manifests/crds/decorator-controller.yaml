@@ -4,10 +4,12 @@ metadata:
   name: label-pods
 spec:
   resources:
+  - apiVersion: windkube.com/v1
+    resource: labels
   - apiVersion: apps/v1
     resource: deployments
   hooks:
     sync:
       webhook:
-        url: http://192.168.1.82:9090/labeler # http://labeler.labeler/label
+        url: http://192.168.116.221:9091/labeler # http://labeler.labeler/label
         timeout: 10s
